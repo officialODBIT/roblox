@@ -134,7 +134,7 @@
                 
                 <div class="tech-info">
                     <h2>Next-Generation Technology</h2>
-                    <p>Our proprietary detection engine combines multiple AI disciplines to create the most comprehensive moderation system available.</p>
+                    <p>Our services provide the best technology in recognizing online dating to keep the platform safe.</p>
                     
                     <div class="tech-features">
                         <div class="tech-feature">
@@ -173,8 +173,8 @@
                 <h2>Ready to Transform Your Moderation?</h2>
                 <p>Join thousands of platforms already using ODBIT to create safer online communities.</p>
                 <div class="cta-buttons">
-                    <button class="btn btn-hero">Start Free Trial</button>
-                    <button class="btn btn-outline">Schedule Demo</button>
+                    <button class="btn btn-hero" id="startt">Start</button>
+                    <button class="btn btn-outline" id="trainsched">Schedule Training</button>
                 </div>
             </div>
         </div>
@@ -265,6 +265,7 @@
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
         };
+        const freetri = document.getElementById("startt");
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -292,10 +293,10 @@
             });
         });
         document.getElementById('loginBtn').addEventListener('click', () => {
-            alert('Login functionality would be implemented here with Firebase Auth');
+            window.location.href = "https://officialodbit.github.io/roblox/sign-in";
         });
         document.getElementById('signupBtn').addEventListener('click', () => {
-            alert('Sign up functionality would be implemented here with Firebase Auth');
+            window.location.href = "https://officialodbit.github.io/roblox/sign-up";
         });
         document.querySelectorAll('.btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
