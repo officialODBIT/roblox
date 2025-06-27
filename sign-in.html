@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign In | ODBIT</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    :root {
+      --navy: #0a2540;
+      --navy-light: #164d8f;
+      --white: #f5f8fa;
+      --gray-dark: #1a1a1a;
+      --gray-light: #3a3a3a;
+      --error-red: #e74c3c;
+      --success-green: #27ae60;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+      font-family: 'Poppins', sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--gray-dark);
+      color: var(--white);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      padding: 1rem;
+    }
+
+    .container {
+      background: var(--navy);
+      padding: 2.5rem 3rem;
+      border-radius: 12px;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.6);
+      width: 320px;
+      max-width: 100%;
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: none;
+      background: var(--gray-light);
+      color: var(--white);
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      background: var(--navy-light);
+    }
+
+    button {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: none;
+      background: var(--navy-light);
+      color: var(--white);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #1e61d0;
+    }
+
+    .message {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      min-height: 1.2rem;
+    }
+
+    .error {
+      color: var(--error-red);
+    }
+
+    .success {
+      color: var(--success-green);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Sign In</h1>
+    <form id="signInForm" autocomplete="off">
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Sign In</button>
+    </form>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import {
+      getFirestore, collection, query, where, getDocs
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import {
+      getAuth, signInWithEmailAndPassword
+    } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjd4oaVXNE8gMYiA_Uk4w5vAMY40J30PE",
+      authDomain: "roblox-game-db.firebaseapp.com",
+      projectId: "roblox-game-db",
+      storageBucket: "roblox-game-db.firebasestorage.app",
+      messagingSenderId: "75514771045",
+      appId: "1:75514771045:web:95d63ced3dc64f6f82388c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const form = document.getElementById("signInForm");
+    const messageEl = document.getElementById("message");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      messageEl.textContent = "";
+      messageEl.className = "";
+
+      const username = form.username.value.trim();
+      const password = form.password.value;
+
+      if (!username || !password) {
+        messageEl.textContent = "Please enter username and password.";
+        messageEl.className = "error";
+        return;
+      }
+
+      try {
+        // Query users collection for matching username
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("username", "==", username));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          messageEl.textContent = "Username not found.";
+          messageEl.className = "error";
+          return;
+        }
+
+        let userEmail = null;
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          if (data.email) userEmail = data.email;
+        });
+
+        if (!userEmail) {
+          messageEl.textContent = "User email not found. Contact support.";
+          messageEl.className = "error";
+          return;
+        }
+
+        // Try to sign in with email and password
+        await signInWithEmailAndPassword(auth, userEmail, password);
+
+        messageEl.textContent = "Signed in successfully!";
+        messageEl.className = "success";
+
+        // Redirect or do something on success
+        setTimeout(() => {
+          window.location.href = "/dashboard.html"; // change as needed
+        }, 1000);
+
+      } catch (error) {
+        messageEl.textContent = "Error: " + error.message;
+        messageEl.className = "error";
+      }
+    });
+  </script>
+</body>
+</html>
